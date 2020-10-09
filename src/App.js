@@ -2,60 +2,42 @@ import React from 'react';
 import { Choice } from './Choice';
 import './App.css';
 
-let playedSets, myPreviousHandText, cpuPreviousHandText;
-let finalScore, cpuWonSet;
-let buttonNotPressed, myScore, cpuScore;
-let sets, gameOver, notDraw;
+let finalScore;
 
 export default class App extends React.Component {
   constructor(props) {
     super();
-    this.state = { value: ''}
-    this.handleChange = this.handleChange.bind(this);
+    this.state = {
+      value: '',
+      sets: 0,
+      playedSets: 0,
+      myPreviousHandText: "",
+      cpuPreviousHandText: "",
+      buttonNotPressed: true,
+      myScore: 0,
+      cpuScore: 0,
+      gameOver: false,
+      notDraw: false
+    }
     this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleGame = this.handleGame.bind(this);
-    playedSets = 0;
-    myPreviousHandText = ""
-    cpuPreviousHandText = ""
-    buttonNotPressed = true;
-    myScore = 0;
-    cpuScore = 0;
-    gameOver = false;
-    notDraw = false;
   }
-
-  /**
-   * Hanterar värdesändringar på sidan, från radioknapparna och submitknappen.
-   */
-  handleChange(event) {
-    this.setState({value: event.target.value});
-  } 
 
   /**
    * Hanterar knapptryckningen när man väljer set.
    */
   handleSubmit(event) {
-    sets = event.target.value;
-      if(buttonNotPressed) {
-        buttonNotPressed = false;
-      }
-      this.handleChange(event)
-  }
-
-  /**
-   * Hanterar knapptryckningen när man väljer hand.
-   */
-  handleGame(event) {
-    if(playedSets<sets) {
-      this.checkSetWinner(event.target.value, Choice[this.generateCpuHand()])
-      playedSets++;
+    if(this.state.buttonNotPressed) { 
+      this.setState(
+        {buttonNotPressed: false,
+        sets: event.target.value})
+    } else {
+        if(this.state.playedSets<this.state.sets) {
+          this.checkSetWinner(event.target.value, Choice[this.generateCpuHand()])
+        }
+        if(!this.state.gameOver) {
+        }
     }
-    if(!gameOver) {
-      this.checkGameWinner();
-    }
-    this.handleChange(event)
   }
-
   /**
    * Genererar en hand åt datorn. Börjar bara med att slumpa fram ett tal mellan
    * 0-2. När första rundan är avklarad börjar datorn kolla om den vann eller inte. 
@@ -66,9 +48,9 @@ export default class App extends React.Component {
    */
   generateCpuHand() {
     let cpuChoice = new Array(2);
-    if(notDraw) {
-      if(cpuWonSet) {
-        cpuChoice[0] = Choice[cpuPreviousHandText];
+    if(this.state.notDraw) {
+      if(this.state.cpuWonSet) {
+        cpuChoice[0] = Choice[this.state.cpuPreviousHandText];
         cpuChoice[1] = Math.floor(Math.random() * Math.floor(3))
         return cpuChoice[Math.floor(Math.random() * Math.floor(2))]
     } else {
@@ -78,8 +60,7 @@ export default class App extends React.Component {
       }
     } else {
       return Math.floor(Math.random() * Math.floor(3))
-  }
-    
+    }
   }
 
   /**
@@ -89,87 +70,99 @@ export default class App extends React.Component {
    * @param {Datorns senaste hand} cpuHand 
    */
   checkSetWinner(myHand, cpuHand) {
-    myPreviousHandText = myHand;
-    cpuPreviousHandText = cpuHand;
+    this.setState(
+      {myPreviousHandText: myHand,
+      cpuPreviousHandText: cpuHand})
     switch(myHand) {
       case "Rock":
         if(cpuHand==="Rock") {
-          playedSets--;
-          notDraw = false;
+          this.setState({playedSets: this.state.playedSets - 1})
         } else if(cpuHand==="Paper") {
-          cpuScore++;
-          notDraw = true;
-          cpuWonSet = true;
+          this.setState(
+            {cpuScore: this.state.cpuScore + 1,
+            playedSets: this.state.playedSets + 1,
+            notDraw: true,
+            cpuWonSet: true})
         } else {
-          myScore++;
-          notDraw = true;
-          cpuWonSet = false;
+          this.setState(
+            {myScore: this.state.myScore + 1,
+            playedSets: this.state.playedSets + 1,
+            notDraw: true,
+            cpuWonSet: false})
         }
         break;
       case "Paper":
         if(cpuHand==="Rock") {
-          myScore++;
-          notDraw = true;
-          cpuWonSet = false;
+          this.setState(
+            {myScore: this.state.myScore + 1,
+            playedSets: this.state.playedSets + 1,
+            notDraw: true,
+            cpuWonSet: false})
         } else if(cpuHand==="Paper") {
-          playedSets--;
-          notDraw = false;
+          this.setState({playedSets: this.state.playedSets - 1})
         } else {
-          cpuScore++;
-          notDraw = true;
-          cpuWonSet = true;
+          this.setState(
+            {cpuScore: this.state.cpuScore + 1,
+            playedSets: this.state.playedSets + 1,
+            notDraw: true,
+            cpuWonSet: true})
         }
         break;
       default:
         if(cpuHand==="Rock") {
-          cpuScore++;
-          notDraw = true;
-          cpuWonSet = true;
+          this.setState(
+            {cpuScore: this.state.cpuScore + 1,
+            playedSets: this.state.playedSets + 1,
+            notDraw: true,
+            cpuWonSet: true})
         } else if(cpuHand==="Paper") {
-          myScore++;
-          notDraw = true;
-          cpuWonSet = false;
+          this.setState(
+            {myScore: this.state.myScore + 1,
+            playedSets: this.state.playedSets + 1,
+            notDraw: true,
+            cpuWonSet: false})
         } else {
-          playedSets--;
-          notDraw = false;
-        }
+          this.setState({playedSets: this.state.playedSets - 1})
         break;
     }
   }
+}
 
   /**
    * Kontrollerar vem som vunnit spelet och skickar poängen och vinstmeddelandet
    * till en komponent. Default hanterar 5 set.
    */
-  checkGameWinner() {
-    switch(sets) {
-      case "1":
-        if(myScore>cpuScore) {
-          gameOver = true;
-          finalScore = <FinalScore winLose="You win" myScore={myScore} cpuScore={cpuScore}/>
-        } else if(myScore<cpuScore) {
-          gameOver = true;
-          finalScore = <FinalScore winLose="Cpu wins" myScore={myScore} cpuScore={cpuScore}/>
-        }
-        break;
-      case "3":
-        if(myScore+sets%2===+sets) {
-          gameOver = true;
-          finalScore = <FinalScore winLose="You win" myScore={myScore} cpuScore={cpuScore}/>
-      } else if(cpuScore+sets%2===+sets) {
-          gameOver = true;
-          finalScore = <FinalScore winLose="Cpu wins" myScore={myScore} cpuScore={cpuScore}/>
-        }
-        break;
-      default:
-        if(myScore+sets%2+1===+sets) {
-          gameOver = true;
-          finalScore = <FinalScore winLose="You win" myScore={myScore} cpuScore={cpuScore}/>
-      } else if(cpuScore+sets%2+1===+sets) {
-          gameOver = true;
-          finalScore = <FinalScore winLose="Cpu wins" myScore={myScore} cpuScore={cpuScore}/>
-        }
-        break;
+  componentDidUpdate() {
+    if(!this.state.gameOver) {
+      switch(this.state.sets) {
+        case "1":
+          if(this.state.myScore===+this.state.sets) {
+            this.setState({gameOver: true})
+            finalScore = <FinalScore winLose="You win" myScore={this.state.myScore} cpuScore={this.state.cpuScore}/>
+          } else if(this.state.cpuScore===+this.state.sets) {
+            this.setState({gameOver: true})
+            finalScore = <FinalScore winLose="Cpu wins" myScore={this.state.myScore} cpuScore={this.state.cpuScore}/>
+          }
+          break;
+        case "3":
+          if(this.state.myScore+this.state.sets%2===+this.state.sets) {
+            this.setState({gameOver: true})
+            finalScore = <FinalScore winLose="You win" myScore={this.state.myScore} cpuScore={this.state.cpuScore}/>
+        } else if(this.state.cpuScore+this.state.sets%2===+this.state.sets) {
+            this.setState({gameOver: true})
+            finalScore = <FinalScore winLose="Cpu wins" myScore={this.state.myScore} cpuScore={this.state.cpuScore}/>
+          }
+          break;
+        default:
+          if(this.state.myScore+this.state.sets%2+1===+this.state.sets) {
+            this.setState({gameOver: true})
+            finalScore = <FinalScore winLose="You win" myScore={this.state.myScore} cpuScore={this.state.cpuScore}/>
+        } else if(this.state.cpuScore+this.state.sets%2+1===+this.state.sets) {
+            this.setState({gameOver: true})
+            finalScore = <FinalScore winLose="Cpu wins" myScore={this.state.myScore} cpuScore={this.state.cpuScore}/>
+          }
+          break;
+      }
     }
   }
 
@@ -178,22 +171,23 @@ export default class App extends React.Component {
    * spelet är slut eller inte.
    */
   render() {
-    if(buttonNotPressed) {
+    if(this.state.buttonNotPressed) {
       return (
         <div className="App">
-        <h1>Rock, Paper, Scissors</h1>
-        <SetText header="Choose a number of sets"/>
-        <SetForm click={this.handleSubmit} value1={1} value2={3} value3={5}/>
-      </div>
+          <h1>Rock, Paper, Scissors</h1>
+          <SetText header="Choose a number of sets"/>
+          <SetForm click={this.handleSubmit} value1={1} value2={3} value3={5}/>
+        </div>
       );
-    } else if(!gameOver) {
+    } else if(!this.state.gameOver) {
       return(
         <div className="App">
-        <h1>Rock, Paper, Scissors</h1>
-        <SetText header="Choose hand" rounds={sets + " set"}/>
-        <SetForm click={this.handleGame} value1={Choice[0]} value2={Choice[1]} value3={Choice[2]}/>
-        <UpdateScoreboard myScore={myScore} cpuScore={cpuScore} />
-      </div>
+          <h1>Rock, Paper, Scissors</h1>
+          <SetText header="Choose hand" rounds={this.state.sets + " set"}/>
+          <SetForm click={this.handleSubmit} value1={Choice[0]} value2={Choice[1]} value3={Choice[2]}/>
+          <UpdateScoreboard myScore={this.state.myScore} cpuScore={this.state.cpuScore} 
+          myLastHand={this.state.myPreviousHandText} cpuLastHand={this.state.cpuPreviousHandText}/>
+        </div>
       );
     } else {
         return(
@@ -229,8 +223,8 @@ function UpdateScoreboard(props) {
     <div>
       <p>{"Your score: " + props.myScore}</p>
       <p>{"Cpu score: " + props.cpuScore}</p>
-      <p>{"Your hand: " + myPreviousHandText}</p>
-      <p>{"Cpu hand: " + cpuPreviousHandText}</p>
+      <p>{"Your hand: " + props.myLastHand}</p>
+      <p>{"Cpu hand: " + props.cpuLastHand}</p>
     </div>
   )
 }
